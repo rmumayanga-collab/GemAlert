@@ -369,6 +369,7 @@
     font-family:'Inter',sans-serif;
   }
   .chat-input-row input:focus{outline:2px solid var(--stone);outline-offset:1px;}
+  .chat-input-row input:disabled{opacity:0.6;cursor:default;}
   .chat-input-row button{
     padding:11px 20px;
     background:var(--stone);
@@ -670,17 +671,11 @@
 <p class="section-sub" data-i18n="A quick way for buyers to get straight answers before they commit — origin questions, terminology, what to check before buying.">A quick way for buyers to get straight answers before they commit — origin questions, terminology, what to check before buying.</p>
 <div class="chat-card">
 <div class="chat-log" id="chatLog">
-<div class="msg bot" data-i18n="Ask me anything about Ceylon gems — origins, grading terms, what to look for in a listing, or how to compare two stones.">Ask me anything about Ceylon gems — origins, grading terms, what to look for in a listing, or how to compare two stones.</div>
-</div>
-<div class="chat-suggestions">
-<div class="chip" data-i18n="Ceylon vs Burmese sapphire" data-q="What's the difference between a Ceylon and Burmese sapphire?">Ceylon vs Burmese sapphire</div>
-<div class="chip" data-i18n="What to check before buying" data-q="What should I check before buying a gem online?">What to check before buying</div>
-<div class="chip" data-i18n="What is VVS clarity" data-q="What does clarity grade VVS mean?">What is VVS clarity</div>
-<div class="chip" data-i18n="Spotting a fake certificate" data-q="How can I tell if a gem certificate is legitimate?">Spotting a fake certificate</div>
+<div class="msg bot" data-i18n="The gem assistant is coming soon — we're putting the finishing touches on it. In the meantime, check the FAQ below or join the alert list to get notified when it's live." id="chatComingSoon">The gem assistant is coming soon — we're putting the finishing touches on it. In the meantime, check the FAQ below or join the alert list to get notified when it's live.</div>
 </div>
 <div class="chat-input-row">
-<input data-i18n-placeholder="Ask about a gem, origin, or grading term" id="chatInput" placeholder="Ask about a gem, origin, or grading term" type="text"/>
-<button data-i18n="Send" id="chatSend">Send</button>
+<input data-i18n-placeholder="Coming soon" disabled="disabled" id="chatInput" placeholder="Coming soon" type="text"/>
+<button data-i18n="Coming soon" disabled="disabled" id="chatSend">Coming soon</button>
 </div>
 </div>
 </section>
@@ -828,58 +823,8 @@
   totalPrice.addEventListener('input', updateCalc);
   caratWeight.addEventListener('input', updateCalc);
 
-  const chatLog = document.getElementById('chatLog');
-  const chatInput = document.getElementById('chatInput');
-  const chatSend = document.getElementById('chatSend');
-
-  function addMsg(text, who){
-    const div = document.createElement('div');
-    div.className = 'msg ' + who;
-    div.textContent = text;
-    chatLog.appendChild(div);
-    chatLog.scrollTop = chatLog.scrollHeight;
-    return div;
-  }
-
-  async function sendChat(text){
-    if(!text || !text.trim()) return;
-    addMsg(text, 'user');
-    chatInput.value = '';
-    chatSend.disabled = true;
-    const thinking = addMsg(document.documentElement.lang==='si'?'සිතමින්…':'Thinking…', 'bot thinking');
-
-    try {
-      // NOTE: This calls the Anthropic API directly from the browser with no key.
-      // That only works inside a Claude.ai artifact preview (which proxies the request).
-      // On a real, publicly hosted page this will fail (no auth / CORS blocks it),
-      // so this chat feature needs a small backend of your own that holds your API
-      // key and forwards the request before this will work outside Claude.ai.
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 400,
-          system: "You are a knowledgeable, concise gem trade assistant for GemAlert, a Sri Lankan gemstone platform. Answer questions about gemstones, origins (especially Ceylon/Sri Lankan gems), grading terms, and what buyers should check before purchasing. Keep answers to 2-4 short sentences unless more detail is clearly needed. Be practical and specific, not generic.",
-          messages: [{ role: "user", content: text }]
-        })
-      });
-      const data = await response.json();
-      thinking.remove();
-      const reply = data.content && data.content.find(b => b.type === 'text');
-      addMsg(reply ? reply.text : (document.documentElement.lang==='si'?'කණගාටුයි, මේ මොහොතේ පිළිතුර ලබාගත නොහැකි විය.':"Sorry, I couldn't get an answer just now."), 'bot');
-    } catch (err) {
-      thinking.remove();
-      addMsg(document.documentElement.lang==='si'?'සහායකය වෙත සම්බන්ධ වීමේදී ගැටලුවක් ඇති විය. නැවත උත්සාහ කරන්න.':'Something went wrong reaching the assistant. Try again.', 'bot');
-    }
-    chatSend.disabled = false;
-  }
-
-  chatSend.addEventListener('click', () => sendChat(chatInput.value));
-  chatInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendChat(chatInput.value); });
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => sendChat(chip.dataset.q));
-  });
+  // Chat assistant is disabled until a backend proxy exists to hold the API key.
+  // The input and button are disabled in the HTML, so no listeners are attached here.
 
   const signupForm = document.getElementById('signupForm');
   const signupError = document.getElementById('signupError');
