@@ -831,7 +831,7 @@
   const signupSuccess = document.getElementById('signupSuccess');
   const signupSubmit = document.getElementById('signupSubmit');
 
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mljrlyod';
+  const SIGNUP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyEGyxSmME4g07ys4tQb7d2ncQnbG07ZPkifOm1Taxqvt_rrzIHMVEaiUTUlyjY9O8llA/exec';
 
   signupForm.addEventListener('submit', async function(e){
     e.preventDefault();
@@ -852,9 +852,13 @@
     signupSubmit.textContent = document.documentElement.lang==='si'?'යවමින්…':'Sending…';
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      // Content-Type is text/plain on purpose: Apps Script web apps don't handle
+      // CORS preflight requests, so using application/json here would trigger a
+      // preflight the endpoint can't answer and the browser would block it.
+      // Apps Script still reads the raw body fine and we JSON.parse it there.
+      await fetch(SIGNUP_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
           name: name,
           contact: contact,
@@ -862,8 +866,6 @@
           budget: budget || 'Not specified'
         })
       });
-
-      if(!res.ok) throw new Error('Formspree error');
 
       document.getElementById('successContact').textContent = contact;
       signupSuccess.style.display = 'block';
