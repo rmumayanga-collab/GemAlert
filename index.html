@@ -165,7 +165,27 @@
     border-radius:10px;
     padding:16px;
     box-shadow:0 1px 2px rgba(28,26,23,0.04);
+    overflow:hidden;
   }
+  .listing-card.has-image{padding:0;}
+  .listing-card .photo{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    display:block;
+    background:var(--line);
+  }
+  .listing-card .photo-placeholder{
+    width:100%;
+    height:150px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--line);
+    color:var(--muted);
+    font-size:22px;
+  }
+  .listing-card .card-body{padding:16px;}
   .listing-card .tag{
     display:inline-block;
     background:#e9f2ee;
@@ -884,13 +904,26 @@
         empty.remove();
         listings.forEach(item => {
           const card = document.createElement('div');
-          card.className = 'listing-card';
+          const hasImage = !!item.imageUrl;
+          card.className = 'listing-card' + (hasImage ? ' has-image' : '');
+
+          const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+          const media = hasImage
+            ? '<img class="photo" src="' + esc(item.imageUrl) + '" alt="' + esc(item.gemType || 'Gem') + '" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;photo-placeholder&quot;><i class=&quot;ti ti-diamond&quot;></i></div>\'"/>'
+            : '';
+          const bodyOpen = hasImage ? '<div class="card-body">' : '';
+          const bodyClose = hasImage ? '</div>' : '';
+
           card.innerHTML =
-            '<div class="tag">' + (item.gemType || 'Gem') + '</div>' +
-            '<div class="gem-type">' + (item.gemType || '—') + '</div>' +
-            '<div class="carat">' + (item.carat ? item.carat + ' ct' : '') + '</div>' +
-            '<div class="price">LKR ' + (Number(item.price) ? Number(item.price).toLocaleString() : item.price || '—') + '</div>' +
-            '<div class="region"><i class="ti ti-map-pin"></i> ' + (item.region || '—') + '</div>';
+            media +
+            bodyOpen +
+            '<div class="tag">' + esc(item.gemType || 'Gem') + '</div>' +
+            '<div class="gem-type">' + esc(item.gemType || '—') + '</div>' +
+            '<div class="carat">' + (item.carat ? esc(item.carat) + ' ct' : '') + '</div>' +
+            '<div class="price">LKR ' + (Number(item.price) ? Number(item.price).toLocaleString() : esc(item.price || '—')) + '</div>' +
+            '<div class="region"><i class="ti ti-map-pin"></i> ' + esc(item.region || '—') + '</div>' +
+            bodyClose;
           grid.appendChild(card);
         });
       })
