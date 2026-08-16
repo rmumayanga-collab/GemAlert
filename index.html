@@ -731,8 +731,8 @@
 <input data-i18n-placeholder="Your name" id="suName" placeholder="Your name" type="text"/>
 </div>
 <div class="field">
-<label data-i18n="Telegram or email" for="suContact">Telegram or email</label>
-<input data-i18n-placeholder="@yourhandle or you@email.com" id="suContact" placeholder="@yourhandle or you@email.com" type="text"/>
+<label data-i18n="Email" for="suContact">Email</label>
+<input data-i18n-placeholder="you@email.com" id="suContact" placeholder="you@email.com" type="email"/>
 </div>
 <div class="field">
 <label data-i18n="Gem type you're watching for" for="suGemType">Gem type you're watching for</label>
@@ -751,7 +751,7 @@
 <input data-i18n-placeholder="e.g. 50,000 - 200,000" id="suBudget" placeholder="e.g. 50,000 - 200,000" type="text"/>
 </div>
 </div>
-<div class="signup-error" data-i18n="Enter your name and a Telegram handle or email so we can reach you." id="signupError">Enter your name and a Telegram handle or email so we can reach you.</div>
+<div class="signup-error" data-i18n="Enter your name and a valid email so we can send you alerts." id="signupError">Enter your name and a valid email so we can send you alerts.</div>
 <button class="btn btn-primary" data-i18n="Join the alert list" id="signupSubmit" type="submit">Join the alert list</button>
 <div class="signup-success" id="signupSuccess"><span data-i18n="You're on the list. We'll reach out on ">You're on the list. We'll reach out on </span><span id="successContact"></span><span data-i18n=" as soon as alerts for your gem type go live."> as soon as alerts for your gem type go live.</span></div>
 <p class="signup-note" data-i18n="No spam — just alerts matching what you tell us. Unsubscribe anytime.">No spam — just alerts matching what you tell us. Unsubscribe anytime.</p>
@@ -913,8 +913,9 @@
     const gemType = document.getElementById('suGemType').value;
     const budget = document.getElementById('suBudget').value.trim();
 
-    if(!name || !contact){
-      signupError.textContent = document.documentElement.lang==='si'?i18n['Enter your name and a Telegram handle or email so we can reach you.']:'Enter your name and a Telegram handle or email so we can reach you.';
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!name || !contact || !emailPattern.test(contact)){
+      signupError.textContent = document.documentElement.lang==='si'?i18n['Enter your name and a valid email so we can send you alerts.']:'Enter your name and a valid email so we can send you alerts.';
       signupError.style.display = 'block';
       signupSuccess.style.display = 'none';
       return;
@@ -1002,7 +1003,7 @@
   "Get alerted first": "මුලින්ම දැනුම් ගන්න",
   "Tell us what you're looking for. You'll be first on the list when gem alerts go live.": "ඔබ සොයන්නේ කුමක්දැයි අපට කියන්න. මැණික් දැනුම්දීම් ක්‍රියාත්මක වූ විට ලැයිස්තුවේ මුලින්ම ඔබට දැනුම් දෙනු ඇත.",
   "Name": "නම",
-  "Telegram or email": "Telegram හෝ ඊමේල්",
+  "Email": "ඊමේල්",
   "Gem type you're watching for": "ඔබ සොයන මැණික් වර්ගය",
   "Any / not sure yet": "ඕනෑම වර්ගයක් / තවමත් නිශ්චිත නැහැ",
   "Blue sapphire": "නිල් මැණික",
@@ -1012,7 +1013,7 @@
   "Spinel": "ස්පිනෙල්",
   "Other": "වෙනත්",
   "Budget range (LKR)": "අයවැය පරාසය (LKR)",
-  "Enter your name and a Telegram handle or email so we can reach you.": "ඔබේ නම සහ අපට සම්බන්ධ විය හැකි Telegram handle එකක් හෝ ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.",
+  "Enter your name and a valid email so we can send you alerts.": "ඔබේ නම සහ අපට ඔබට දැනුම්දීම් යැවීමට හැකි වලංගු ඊමේල් ලිපිනයක් ඇතුළත් කරන්න.",
   "You're on the list. We'll reach out on ": "ඔබ ලැයිස්තුවට එක් කර ඇත. දැනුම්දීම් ක්‍රියාත්මක වූ වහාම ",
   " as soon as alerts for your gem type go live.": " ඔබ සොයන මැණික් වර්ගය සඳහා දැනුම් දෙන්නෙමු.",
   "No spam — just alerts matching what you tell us. Unsubscribe anytime.": "ස්පෑම් නැහැ — ඔබ ලබාදෙන විස්තරයට ගැළපෙන දැනුම්දීම් පමණයි. ඕනෑම වේලාවක ඉවත් විය හැක.",
