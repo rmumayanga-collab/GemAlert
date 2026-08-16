@@ -151,6 +151,40 @@
     position:relative;
     z-index:-1;
   }
+
+  /* Recent listings */
+  .listings-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:14px;
+    margin-top:20px;
+  }
+  .listing-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    box-shadow:0 1px 2px rgba(28,26,23,0.04);
+  }
+  .listing-card .tag{
+    display:inline-block;
+    background:#e9f2ee;
+    color:var(--stone-dark);
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 7px;
+    border-radius:4px;
+    margin-bottom:8px;
+    text-transform:uppercase;
+    letter-spacing:0.02em;
+  }
+  .listing-card .gem-type{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+  .listing-card .carat{font-size:13px;color:var(--muted);margin-bottom:10px;}
+  .listing-card .price{font-size:18px;font-weight:600;color:var(--stone-dark);margin-bottom:6px;}
+  .listing-card .region{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+  .listings-empty{color:var(--muted);font-size:14px;padding:20px 0;}
+  html[data-theme="dark"] .listing-card .tag{background:rgba(233,242,238,0.12);color:#8fd8bd;}
+  html[data-theme="dark"] .listing-card .price{color:#8fd8bd;}
   .btn{
     display:inline-flex;
     align-items:center;
@@ -666,6 +700,13 @@
 <div class="calc-fx-note" data-i18n="Converted at an approximate rate of 1 USD ≈ 300 LKR — check current rates for exact figures." id="fxNote" style="display:none;">Converted at an approximate rate of 1 USD ≈ 300 LKR — check current rates for exact figures.</div>
 </div>
 </section>
+<section id="listings">
+<h2 data-i18n="Recent listings">Recent listings</h2>
+<p class="section-sub" data-i18n="A few gems currently being tracked — join the alert list to hear about new ones as they appear.">A few gems currently being tracked — join the alert list to hear about new ones as they appear.</p>
+<div class="listings-grid" id="listingsGrid">
+<div class="listings-empty" data-i18n="Loading listings…" id="listingsEmpty">Loading listings…</div>
+</div>
+</section>
 <section id="chat">
 <h2 data-i18n="Ask the gem assistant">Ask the gem assistant</h2>
 <p class="section-sub" data-i18n="A quick way for buyers to get straight answers before they commit — origin questions, terminology, what to check before buying.">A quick way for buyers to get straight answers before they commit — origin questions, terminology, what to check before buying.</p>
@@ -826,6 +867,38 @@
   // Chat assistant is disabled until a backend proxy exists to hold the API key.
   // The input and button are disabled in the HTML, so no listeners are attached here.
 
+  // Fetches recent listings from the same Apps Script backend and renders them.
+  (function loadListings(){
+    const grid = document.getElementById('listingsGrid');
+    const empty = document.getElementById('listingsEmpty');
+    const endpoint = 'https://script.google.com/macros/s/AKfycbyEGyxSmME4g07ys4tQb7d2ncQnbG07ZPkifOm1Taxqvt_rrzIHMVEaiUTUlyjY9O8llA/exec';
+
+    fetch(endpoint)
+      .then(res => res.json())
+      .then(data => {
+        const listings = data.listings || [];
+        if(!listings.length){
+          empty.textContent = document.documentElement.lang==='si' ? 'තවම ලැයිස්තු නොමැත. ඉක්මනින් නැවත පරීක්ෂා කරන්න.' : 'No listings yet — check back soon.';
+          return;
+        }
+        empty.remove();
+        listings.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'listing-card';
+          card.innerHTML =
+            '<div class="tag">' + (item.gemType || 'Gem') + '</div>' +
+            '<div class="gem-type">' + (item.gemType || '—') + '</div>' +
+            '<div class="carat">' + (item.carat ? item.carat + ' ct' : '') + '</div>' +
+            '<div class="price">LKR ' + (Number(item.price) ? Number(item.price).toLocaleString() : item.price || '—') + '</div>' +
+            '<div class="region"><i class="ti ti-map-pin"></i> ' + (item.region || '—') + '</div>';
+          grid.appendChild(card);
+        });
+      })
+      .catch(() => {
+        empty.textContent = document.documentElement.lang==='si' ? 'ලැයිස්තු පූරණය කළ නොහැක.' : 'Couldn\'t load listings right now.';
+      });
+  })();
+
   const signupForm = document.getElementById('signupForm');
   const signupError = document.getElementById('signupError');
   const signupSuccess = document.getElementById('signupSuccess');
@@ -893,6 +966,9 @@
   "GemAlert watches Sri Lanka's gem listings and pings you the moment something matching your criteria appears — plus tools to price and understand what you're buying.": "GemAlert ශ්‍රී ලංකාවේ මැණික් ලැයිස්තු නිරීක්ෂණය කරමින්, ඔබේ අවශ්‍යතාට ගැළපෙන දෙයක් පළ වූ වහාම ඔබට දැනුම් දෙයි — එමෙන්ම ඔබ මිලදී ගන්නා මැණිකේ මිල තක්සේරු කර තේරුම් ගැනීමට මෙවලම්ද ලබා දෙයි.",
   "Join the alert list": "දැනුම්දීම් ලැයිස්තුවට එක්වන්න",
   "Ask the gem assistant": "මැණික් සහායකගෙන් අසන්න",
+  "Recent listings": "මෑත ලැයිස්තු",
+  "A few gems currently being tracked — join the alert list to hear about new ones as they appear.": "දැනට නිරීක්ෂණය කරන මැණික් කිහිපයක් — නව ඒවා පළ වන විට දැනගැනීමට දැනුම්දීම් ලැයිස්තුවට එක්වන්න.",
+  "Loading listings…": "ලැයිස්තු පූරණය වෙමින්…",
   "No spam": "ස්පෑම් නැහැ",
   "Free to join": "එක්වීම නොමිලේ",
   "Sri Lanka focused": "ශ්‍රී ලංකාව කේන්ද්‍ර කරගත්",
